@@ -1,5 +1,3 @@
-
--- Dropar tabelas na ordem correta
 DROP TABLE IF EXISTS ProdutoBarraca;
 DROP TABLE IF EXISTS PresencaBarracaFeira;
 DROP TABLE IF EXISTS Comentario;
@@ -9,84 +7,85 @@ DROP TABLE IF EXISTS Barraca;
 DROP TABLE IF EXISTS Feira;
 DROP TABLE IF EXISTS Usuario;
 
+-- Tabela de Usuário
 CREATE TABLE Usuario (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     senha TEXT NOT NULL,
-	tipo_usuario TEXT CHECK (tipo_usuario IN ('admin', 'normal', 'usuario', 'feirante'))
+    tipo_usuario TEXT CHECK (tipo_usuario IN ('admin', 'normal', 'usuario', 'feirante'))
 );
 
 -- Tabela de Feiras
 CREATE TABLE Feira (
-    id SERIAL PRIMARY KEY,                  -- Chave primária
-    nome VARCHAR(255) NOT NULL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
     endereco TEXT,
     latitude DECIMAL(9, 6),
     longitude DECIMAL(9, 6),
-    horario_funcionamento TEXT -- Exemplo de horário de funcionamento (pode ser customizado)
+    horario_funcionamento TEXT
 );
 
--- Tabela de Feira Favorita (N:N entre Usuario e Feira)
+-- Feira Favorita
 CREATE TABLE FeiraFavorita (
-    id SERIAL PRIMARY KEY,                  -- Chave primária
-    usuario_id INT NOT NULL,                -- FK para Usuario
-    feira_id INT NOT NULL,                  -- FK para Feira
-    data_favoritou TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Data que favoritou
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario_id INT NOT NULL,
+    feira_id INT NOT NULL,
+    data_favoritou TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES Usuario(id) ON DELETE CASCADE,
     FOREIGN KEY (feira_id) REFERENCES Feira(id) ON DELETE CASCADE,
-    UNIQUE (usuario_id, feira_id) -- Garante que o mesmo usuário não favorite a feira mais de uma vez
+    UNIQUE (usuario_id, feira_id)
 );
 
--- Tabela de Comentários (N:N entre Usuario e Feira)
+-- Comentários
 CREATE TABLE Comentario (
-    id SERIAL PRIMARY KEY,                  -- Chave primária
-    usuario_id INT NOT NULL,                -- FK para Usuario
-    feira_id INT NOT NULL,                  -- FK para Feira
-    texto TEXT NOT NULL,                    -- Conteúdo do comentário
-    nota INT CHECK (nota >= 1 AND nota <= 5), -- Nota de avaliação (opcional)
-    data_comentario TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Data do comentário
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario_id INT NOT NULL,
+    feira_id INT NOT NULL,
+    texto TEXT NOT NULL,
+    nota INT CHECK (nota >= 1 AND nota <= 5),
+    data_comentario TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES Usuario(id) ON DELETE CASCADE,
     FOREIGN KEY (feira_id) REFERENCES Feira(id) ON DELETE CASCADE
 );
 
--- Tabela de Barracas
+-- Barraca
 CREATE TABLE Barraca (
-    id SERIAL PRIMARY KEY,                  -- Chave primária
-    nome VARCHAR(255) NOT NULL,
-    tipo VARCHAR(100) NOT NULL,             -- Exemplo: "Frutas", "Pastel", etc.
-    feirante_id INT NOT NULL,               -- FK para Feirante
-    FOREIGN KEY (feirante_id) REFERENCES Feirante(id) ON DELETE CASCADE
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    tipo TEXT NOT NULL,
+    feirante_id INT NOT NULL,
+    FOREIGN KEY (feirante_id) REFERENCES Usuario(id) ON DELETE CASCADE
 );
 
--- Tabela de Produto
+-- Produto
 CREATE TABLE Produto (
-    id SERIAL PRIMARY KEY,                  -- Chave primária
-    nome VARCHAR(255) NOT NULL,
-    categoria VARCHAR(100) NOT NULL
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    categoria TEXT NOT NULL
 );
 
--- Tabela de Relacionamento Barraca-Produto (N:N entre Barraca e Produto)
+-- Produto-Barraca
 CREATE TABLE ProdutoBarraca (
-    id SERIAL PRIMARY KEY,                  -- Chave primária
-    barraca_id INT NOT NULL,                -- FK para Barraca
-    produto_id INT NOT NULL,                -- FK para Produto
-    observacao TEXT,                        -- Observações adicionais (opcional)
-    disponivel BOOLEAN DEFAULT TRUE,        -- Indica se o produto está disponível
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    barraca_id INT NOT NULL,
+    produto_id INT NOT NULL,
+    observacao TEXT,
+    disponivel BOOLEAN DEFAULT 1,
     FOREIGN KEY (barraca_id) REFERENCES Barraca(id) ON DELETE CASCADE,
     FOREIGN KEY (produto_id) REFERENCES Produto(id) ON DELETE CASCADE,
-    UNIQUE (barraca_id, produto_id)         -- Garante que um produto não seja duplicado na mesma barraca
+    UNIQUE (barraca_id, produto_id)
 );
 
--- Tabela de Feiras (N:N entre Feira e Barraca com presença e data)
+-- Presença Barraca na Feira
 CREATE TABLE PresencaBarracaFeira (
-    id SERIAL PRIMARY KEY,                  -- Chave primária
-    feira_id INT NOT NULL,                  -- FK para Feira
-    barraca_id INT NOT NULL,                -- FK para Barraca
-    data DATE NOT NULL,                     -- Data específica da feira
-    local_mapa VARCHAR(255),                -- Localização no mapa (ex: "A1", "B2")
-    coordenadas VARCHAR(255),               -- Coordenadas geográficas (opcional)
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    feira_id INT NOT NULL,
+    barraca_id INT NOT NULL,
+    data DATE NOT NULL,
+    local_mapa TEXT,
+    coordenadas TEXT,
     FOREIGN KEY (feira_id) REFERENCES Feira(id) ON DELETE CASCADE,
     FOREIGN KEY (barraca_id) REFERENCES Barraca(id) ON DELETE CASCADE,
-    UNIQUE (feira_id, barraca_id, data)     -- Garante que a barraca só possa estar em uma feira em uma data específica
+    UNIQUE (feira_id, barraca_id, data)
 );
