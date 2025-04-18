@@ -1,0 +1,68 @@
+    body {
+      background-color: #F5F5F5;
+    }
+
+    .login-container {
+      max-width: 400px;
+      margin: auto;
+      margin-top: 10vh;
+      padding: 2rem;
+      background-color: #ffffff;
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .login-title {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .btn-login {
+      background-color: #FFA726;
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn-login:hover {
+      background-color: #FF7043;
+    }
+
+    .form-control:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+    }
+
+    .link-register {
+      color: #2196F3;
+      text-decoration: none;
+    }
+
+    .link-register:hover {
+      text-decoration: underline;
+    }
+
+      .header { background-color: #4CAF50; color: white; padding: 1rem; text-align: center; }
+    .mapa-container {
+      height: 300px;
+      background-color: #E0E0E0;
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+    }
+    .feira-card {
+      border-left: 5px solid #FFA726;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background-color: white;
+      border-radius: 0.5rem;
+    }
+    .form-container {
+      max-width: 500px; margin: auto; margin-top: 5vh;
+      background-color: #fff; padding: 2rem; border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h2 { color: #4CAF50; }
+    .btn-primary {
+      background-color: #FFA726; border: none;
+    }
+    .btn-primary:hover { background-color: #FF7043; }
+
