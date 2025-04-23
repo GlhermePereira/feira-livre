@@ -6,14 +6,22 @@ DROP TABLE IF EXISTS Produto;
 DROP TABLE IF EXISTS Barraca;
 DROP TABLE IF EXISTS Feira;
 DROP TABLE IF EXISTS Usuario;
+DROP TABLE IF EXISTS TipoUsuario;
 
--- Tabela de Usuário
+-- Tabela de usuários
 CREATE TABLE Usuario (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     senha TEXT NOT NULL,
-    tipo_usuario TEXT CHECK (tipo_usuario IN ('admin', 'normal', 'usuario', 'feirante'))
+    tipo_usuario_id INTEGER NOT NULL,
+    FOREIGN KEY (tipo_usuario_id) REFERENCES TipoUsuario(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE TipoUsuario (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tipo TEXT UNIQUE NOT NULL CHECK (tipo IN ('admin', 'usuario', 'feirante'))
 );
 
 -- Tabela de Feiras

@@ -1,9 +1,14 @@
 -- Inserir usuários
-INSERT INTO Usuario (nome, email, senha, tipo_usuario) VALUES
-('Admin Principal', 'admin@feiras.com', 'senha123', 'admin'),
-('João Silva', 'joao@gmail.com', 'senha123', 'usuario'),
-('Maria Oliveira', 'maria@gmail.com', 'senha123', 'usuario'),
-('Feirante Pedro', 'pedro@barracas.com', 'senha123', 'feirante');
+INSERT INTO TipoUsuario (tipo) VALUES
+('admin'),
+('usuario'),
+('feirante');
+
+INSERT INTO Usuario (nome, email, senha, tipo_usuario_id) VALUES
+('Admin Principal', 'admin@feiras.com', 'senha123', 1),   -- admin
+('João Silva', 'joao@gmail.com', 'senha123', 2),          -- usuario
+('Maria Oliveira', 'maria@gmail.com', 'senha123', 2),     -- usuario
+('Pedro Feirante', 'pedro@barracas.com', 'senha123', 3);  -- feirante
 
 -- Inserir feiras
 INSERT INTO Feira (nome, endereco, latitude, longitude, horario_funcionamento) VALUES
@@ -34,6 +39,12 @@ INSERT INTO Barraca (nome, tipo, feirante_id) VALUES
 ('Barraca do Zé', 'Frutas', 4),
 ('Pastelaria da Ana', 'Pastel', 4),
 ('Verduras do Chico', 'Verduras', 4);
+
+INSERT INTO Produto (nome, categoria) VALUES
+('Banana', 'Fruta'),
+('Maçã', 'Fruta'),
+('Pastel de Queijo', 'Salgado'),
+('Suco de Laranja', 'Bebida');
 
 
 INSERT INTO ProdutoBarraca (barraca_id, produto_id) VALUES
