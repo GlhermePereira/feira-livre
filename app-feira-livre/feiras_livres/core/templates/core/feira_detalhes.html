@@ -1,0 +1,15 @@
+<h1>{{ feira.nome }}</h1>
+<p><b>Endereço:</b> {{ feira.endereco }}</p>
+<p><b>Bairro:</b> {{ feira.bairro }}</p>
+<p><b>Cidade:</b> {{ feira.cidade }}</p>
+<p><b>Dias de funcionamento:</b> {{ feira.dias_funcionamento }}</p>
+<p><b>Horário:</b> {{ feira.horario_abertura }} às {{ feira.horario_fechamento }}</p>
+
+<h2>Barracas</h2>
+<ul>
+  {% for barraca in barracas %}
+    <li>{{ barraca.nome }} - {{ barraca.descricao }}</li>
+  {% empty %}
+    <li>Sem barracas cadastradas.</li>
+  {% endfor %}
+</ul>

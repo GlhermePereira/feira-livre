@@ -1,0 +1,21 @@
+<h1>Feiras</h1>
+
+<form method="get">
+  {{ filter.form.as_p }}
+  <button type="submit">Filtrar</button>
+  <a href="{% url 'feiras' %}">Limpar filtro</a>
+</form>
+
+<hr>
+
+<ul>
+  {% for feira in feiras %}
+    <li>
+      <strong>{{ feira.nome }}</strong> - {{ feira.bairro }}<br>
+      Funcionamento: {{ feira.dias_funcionamento }} das {{ feira.horario_abertura }} às {{ feira.horario_fechamento }}<br>
+      <a href="{% url 'feira_detalhes' feira.id %}">Detalhes</a>
+    </li>
+  {% empty %}
+    <li>Nenhuma feira encontrada.</li>
+  {% endfor %}
+</ul>

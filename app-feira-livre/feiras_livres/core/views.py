@@ -17,7 +17,15 @@ def cadastro_view(request):
         form = UsuarioCreateForm()
     return render(request, 'core/cadastro.html', {'form': form})
 
+@login_required
+def feira_detalhes_view(request, feira_id):
+    feira = get_object_or_404(Feira, id=feira_id)
+    barracas = feira.barracas.all()  # usando related_name 'barracas'
 
+    return render(request, 'core/feira_detalhes.html', {
+        'feira': feira,
+        'barracas': barracas,
+    })
 
 
 def login_view(request):
