@@ -1,41 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinLengthValidator, RegexValidator
+from django.core.validators import RegexValidator
+from django.contrib.auth import get_user_model
 
-class Usuario(AbstractUser):
-    email = models.EmailField(unique=True, verbose_name="E-mail")
-    telefone = models.CharField(
-        max_length=15,
-        blank=True,
-        validators=[RegexValidator(r'^\+?1?\d{9,15}$', 'Formato: +5511987654321')],
-        verbose_name="Telefone"
-    )
-    endereco = models.TextField(blank=True, verbose_name="Endereço")
-    
-    # Adicione estes related_name personalizados
-    groups = models.ManyToManyField(
-        'auth.Group',
-        verbose_name='groups',
-        blank=True,
-        help_text='The groups this user belongs to.',
-        related_name='core_usuario_set',  # Nome personalizado
-        related_query_name='core_usuario'
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        verbose_name='user permissions',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        related_name='core_usuario_set',  # Nome personalizado
-        related_query_name='core_usuario'
-    )
-
-    class Meta(AbstractUser.Meta):
-        verbose_name = "Usuário"
-        verbose_name_plural = "Usuários"
-    def __str__(self):
-        return self.username
-
+Usuario = get_user_model()
 
 # Feira (RF01, RF02, RF04)
 class Feira(models.Model):
@@ -52,7 +20,7 @@ class Feira(models.Model):
     nome = models.CharField(max_length=100, verbose_name="Nome da Feira")
     endereco = models.TextField(verbose_name="Endereço Completo")
     bairro = models.CharField(max_length=50)
-    cidade = models.CharField(max_length=50, default="São Paulo")
+    cidade = models.CharField(max_length=50, default="Praia Grande")
     
     # Coordenadas para o mapa (RF02)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)

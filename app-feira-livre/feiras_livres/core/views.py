@@ -3,6 +3,15 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import UsuarioCreateForm
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+import requests
+from django.http import JsonResponse
+from .models import Feira
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import logging
+logger = logging.getLogger(__name__)
+
 
 def cadastro_view(request):
     if request.method == 'POST':
@@ -28,23 +37,77 @@ def feira_detalhes_view(request, feira_id):
     })
 
 
-def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('feiras')
-        else:
-            messages.error(request, "Usuário ou senha inválidos.")
-    else:
-        form = AuthenticationForm()
-    return render(request, 'core/login.html', {'form': form})
+@csrf_exempt
+def buscar_feiras_por_endereco(request):
+    endereco = request.GET.get('endereco', '').strip()
+    if not endereco:
+        return JsonResponse({"erro": "Endereço não fornecido."}, status=400)
 
+    if "Praia Grande" not in endereco:
+        endereco += ", Praia Grande"
+
+    try:
+        url = 'https://nominatim.openstreetmap.org/search'
+        params = {
+            'q': endereco,
+            'format': 'json',
+            'limit': 1,
+        }
+
+        response = requests.get(url, params=params, headers={'User-Agent': 'feira-livre-django'})
+        data = response.json()
+
+        if response.status_code != 200 or not data:
+            return JsonResponse({"erro": "Endereço não encontrado."}, status=400)
+
+        print("🔎 Consulta Nominatim:", data)  # <- CORRIGIDO AQUI
+
+        geo = data[0]
+        lat = float(geo['lat'])
+        lon = float(geo['lon'])
+
+        feiras = Feira.objects.filter(cidade__iexact="Praia Grande", ativa=True)
+
+        resultado = []
+        for feira in feiras:
+            if feira.latitude and feira.longitude:
+                resultado.append({
+                    'id': feira.id,
+                    'nome': feira.nome,
+                    'endereco': feira.endereco,
+                    'bairro': feira.bairro,
+                    'latitude': float(feira.latitude),
+                    'longitude': float(feira.longitude),
+                })
+
+        return JsonResponse(resultado, safe=False)
+
+    except Exception as e:
+        logger.exception("Erro ao buscar feiras por endereço")
+        return JsonResponse({"erro": "Erro interno no servidor."}, status=500)
 
 
 def feiras_view(request):
     # exemplo simples
     return render(request, 'core/feiras.html')
 
+def buscar_feiras(request):
+    termo = request.GET.get('q', '')
+    feiras = Feira.objects.filter(nome__icontains=termo)[:10]
+    resultados = [{'id': feira.id, 'nome': feira.nome, 'endereco': feira.endereco} for feira in feiras]
+    return JsonResponse(resultados, safe=False)
 
+
+# views.py
+def listar_todas_feiras(request):
+    feiras = Feira.objects.filter(ativa=True)
+    return JsonResponse([
+        {
+            'id': f.id,
+            'nome': f.nome,
+            'endereco': f.endereco,
+            'bairro': f.bairro,
+            'latitude': float(f.latitude),
+            'longitude': float(f.longitude),
+        } for f in feiras if f.latitude and f.longitude
+    ], safe=False)

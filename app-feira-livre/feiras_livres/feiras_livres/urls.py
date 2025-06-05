@@ -1,7 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import redirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),  # Inclui as urls do app core
+    path('', include('usuarios.urls')),  # sem 'usuarios/' prefixado
+    path('', include('core.urls')),
+    # redirecionar raiz para login (Django templates)
+    path('', lambda request: redirect('login/')),  # ou redirect('/usuarios/login/')
 ]

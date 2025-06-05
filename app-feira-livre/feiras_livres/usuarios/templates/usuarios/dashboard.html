@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Feiras Próximas</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    #map { height: 400px; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <h2>Olá, {{ request.user.first_name }}! Pesquise feiras:</h2>
+<form onsubmit="buscarFeiras(); return false;">
+  <input type="text" id="enderecoInput" oninput="autocompleteFeiras()" placeholder="Digite o nome da feira...">
+<ul id="autocompleteLista"></ul>
+
+<script>
+  async function autocompleteFeiras() {
+    const termo = document.getElementById("enderecoInput").value;
+    if (!termo.trim()) return;
+
+    const response = await fetch(`/api/feiras/autocomplete/?q=${encodeURIComponent(termo)}`);
+    const dados = await response.json();
+
+    const lista = document.getElementById("autocompleteLista");
+    lista.innerHTML = "";
+
+    dados.forEach(feira => {
+      const item = document.createElement("li");
+      item.textContent = `${feira.nome} - ${feira.endereco}`;
+      lista.appendChild(item);
+    });
+  }
+</script>
+
+  <button type="submit">Buscar</button>
+</form>
+
+  <div id="map"></div>
+  <ul id="listaFeiras"></ul>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    let map = L.map('map').setView([-24.007, -46.402], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    async function buscarFeiras() {
+  const endereco = document.getElementById("enderecoInput").value;
+  const lista = document.getElementById("listaFeiras");
+  lista.innerHTML = "";
+
+  try {
+    const response = await fetch(`/api/feiras/geolocalizacao/?endereco=${encodeURIComponent(endereco)}`);
+
+    if (!response.ok) {
+      const erro = await response.json();
+      lista.innerHTML = `<li style="color: red;">Erro: ${erro.erro}</li>`;
+      return;
+    }
+
+    const feiras = await response.json();
+
+    // Limpa marcadores antigos
+    map.eachLayer(layer => {
+      if (layer instanceof L.Marker) {
+        map.removeLayer(layer);
+      }
+    });
+
+    if (feiras.length === 0) {
+      lista.innerHTML = `<li>Nenhuma feira encontrada próxima.</li>`;
+      return;
+    }
+
+    feiras.forEach(feira => {
+      L.marker([feira.latitude, feira.longitude])
+        .addTo(map)
+        .bindPopup(`<b>${feira.nome}</b><br>${feira.endereco}`);
+
+      const item = document.createElement("li");
+      item.textContent = `${feira.nome} – ${feira.bairro}`;
+      lista.appendChild(item);
+    });
+  } catch (error) {
+    lista.innerHTML = `<li style="color: red;">Erro ao buscar feiras. Tente novamente.</li>`;
+    console.error(error);
+  }
+}
+
+
+    buscarFeiras(); // Carrega padrão
+  </script>
+</body>
+</html>
