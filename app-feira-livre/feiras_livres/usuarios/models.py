@@ -30,10 +30,13 @@ class UsuarioManager(BaseUserManager):
 
 # Modelo customizado de usuário
 class Usuario(AbstractUser):
-    email = models.EmailField(unique=True, verbose_name="E-mail")
-    first_name = models.CharField(max_length=30, verbose_name="Nome")
-    last_name = models.CharField(max_length=30, verbose_name="Sobrenome")
-    endereco = models.TextField(blank=True, verbose_name="Endereço")
+    cep = models.CharField(max_length=9, blank=True, verbose_name="CEP")
+    rua = models.CharField(max_length=100, blank=True, verbose_name="Rua")
+    bairro = models.CharField(max_length=100, blank=True, verbose_name="Bairro")
+    cidade = models.CharField(max_length=100, blank=True, verbose_name="Cidade")
+    estado = models.CharField(max_length=2, blank=True, verbose_name="Estado")
+    email = models.EmailField(unique=True, verbose_name="E-mail")  # <-- Aqui deve estar certo!
+    numero = models.CharField(max_length=10, blank=True, verbose_name="Número")
     telefone = models.CharField(
         max_length=15,
         blank=True,
@@ -42,9 +45,11 @@ class Usuario(AbstractUser):
     )
 
     USERNAME_FIELD = 'email'
+
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     objects = UsuarioManager()  # ✅ aqui sim é o lugar correto
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
+

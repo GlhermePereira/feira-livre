@@ -3,95 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <title>Feiras Próximas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
   <style>
     #map { height: 400px; margin-bottom: 1rem; }
-  </style>
-</head>
-<body>
-  <h2>Olá, {{ request.user.first_name }}! Pesquise feiras:</h2>
-<form onsubmit="buscarFeiras(); return false;">
-  <input type="text" id="enderecoInput" oninput="autocompleteFeiras()" placeholder="Digite o nome da feira...">
-<ul id="autocompleteLista"></ul>
-
-<script>
-  async function autocompleteFeiras() {
-    const termo = document.getElementById("enderecoInput").value;
-    if (!termo.trim()) return;
-
-    const response = await fetch(`/api/feiras/autocomplete/?q=${encodeURIComponent(termo)}`);
-    const dados = await response.json();
-
-    const lista = document.getElementById("autocompleteLista");
-    lista.innerHTML = "";
-
-    dados.forEach(feira => {
-      const item = document.createElement("li");
-      item.textContent = `${feira.nome} - ${feira.endereco}`;
-      lista.appendChild(item);
-    });
-  }
-</script>
-
-  <button type="submit">Buscar</button>
-</form>
-
-  <div id="map"></div>
-  <ul id="listaFeiras"></ul>
-
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    let map = L.map('map').setView([-24.007, -46.402], 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    async function buscarFeiras() {
-  const endereco = document.getElementById("enderecoInput").value;
-  const lista = document.getElementById("listaFeiras");
-  lista.innerHTML = "";
-
-  try {
-    const response = await fetch(`/api/feiras/geolocalizacao/?endereco=${encodeURIComponent(endereco)}`);
-
-    if (!response.ok) {
-      const erro = await response.json();
-      lista.innerHTML = `<li style="color: red;">Erro: ${erro.erro}</li>`;
-      return;
+    .autocomplete-items {
+      position: absolute;
+      z-index: 1000;
+      background: white;
+      width: 100%;
+      border: 1px solid #ced4da;
+      max-height: 200px;
+      overflow-y: auto;
     }
-
-    const feiras = await response.json();
-
-    // Limpa marcadores antigos
-    map.eachLayer(layer => {
-      if (layer instanceof L.Marker) {
-        map.removeLayer(layer);
-      }
-    });
-
-    if (feiras.length === 0) {
-      lista.innerHTML = `<li>Nenhuma feira encontrada próxima.</li>`;
-      return;
-    }
-
-    feiras.forEach(feira => {
-      L.marker([feira.latitude, feira.longitude])
-        .addTo(map)
-        .bindPopup(`<b>${feira.nome}</b><br>${feira.endereco}`);
-
-      const item = document.createElement("li");
-      item.textContent = `${feira.nome} – ${feira.bairro}`;
-      lista.appendChild(item);
-    });
-  } catch (error) {
-    lista.innerHTML = `<li style="color: red;">Erro ao buscar feiras. Tente novamente.</li>`;
-    console.error(error);
-  }
+    
+    .autocomplete-items {
+  position: absolute;
+  z-index: 1050; /* maior que o modal do Bootstrap */
+  background: white;
+  width: 100%;
+  border: 1px solid #ced4da;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 
-    buscarFeiras(); // Carrega padrão
-  </script>
+    .autocomplete-items li {
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+
+    .autocomplete-items li:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body class="container py-4">
+  <h2 class="mb-4">Olá, {{ request.user.first_name }}! Pesquise feiras:</h2>
+
+<form class="mb-4" onsubmit="buscarFeiras(); return false;">
+  <div class="position-relative">
+    <input type="text" id="enderecoInput" class="form-control"
+           placeholder="Digite o nome da feira..."
+           autocomplete="off" oninput="autocompleteFeiras()" />
+    <ul id="autocompleteLista" class="autocomplete-items list-group"></ul>
+  </div>
+  <button type="submit" class="btn btn-primary mt-2">Buscar</button>
+</form>
+
+
+  <div id="map"></div>
+
+  <h5>Feiras encontradas:</h5>
+  <ul id="listaFeiras" class="list-group"></ul>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+  let map = L.map('map').setView([-24.007, -46.402], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  function adicionarMarcadorFeira(feira) {
+    L.marker([feira.latitude, feira.longitude])
+      .addTo(map)
+      .bindPopup(`<b>${feira.nome}</b><br>${feira.endereco}`);
+  }
+
+  function adicionarLocalizacaoAtual() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+
+        const marcador = L.marker([latitude, longitude], {
+          icon: L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+          })
+        }).addTo(map).bindPopup('Você está aqui');
+
+        map.setView([latitude, longitude], 14);
+      }, erro => {
+        console.warn("⚠️ Localização não permitida.");
+      });
+    } else {
+      console.error("Geolocalização não suportada.");
+    }
+  }
+
+  async function carregarTodasFeiras() {
+    try {
+      const response = await fetch('/api/feiras/todas/');
+      const feiras = await response.json();
+
+      feiras.forEach(feira => adicionarMarcadorFeira(feira));
+    } catch (error) {
+      console.error("Erro ao carregar feiras:", error);
+    }
+  }
+
+  async function buscarFeiras() {
+    const endereco = document.getElementById("enderecoInput").value;
+    const lista = document.getElementById("listaFeiras");
+    lista.innerHTML = "";
+
+    try {
+      const response = await fetch(`/api/feiras/geolocalizacao/?endereco=${encodeURIComponent(endereco)}`);
+
+      if (!response.ok) {
+        const erro = await response.json();
+        lista.innerHTML = `<li class="list-group-item text-danger">Erro: ${erro.erro}</li>`;
+        return;
+      }
+
+      const feiras = await response.json();
+
+      map.eachLayer(layer => {
+        if (layer instanceof L.Marker) map.removeLayer(layer);
+      });
+
+      adicionarLocalizacaoAtual();
+
+      feiras.forEach(feira => {
+        adicionarMarcadorFeira(feira);
+        const item = document.createElement("li");
+        item.className = "list-group-item";
+        item.textContent = `${feira.nome} – ${feira.bairro}`;
+        lista.appendChild(item);
+      });
+    } catch (error) {
+      lista.innerHTML = `<li class="list-group-item text-danger">Erro ao buscar feiras. Tente novamente.</li>`;
+    }
+  }
+let listaFeirasCache = [];
+
+async function autocompleteFeiras() {
+  console.log('🔍 Autocomplete acionado');
+  const input = document.getElementById("enderecoInput");
+  const lista = document.getElementById("autocompleteLista");
+  const termo = input.value.toLowerCase();
+  lista.innerHTML = "";
+
+  if (listaFeirasCache.length === 0) {
+    const response = await fetch('/api/feiras/todas/');
+    listaFeirasCache = await response.json();
+  }
+
+  const resultados = listaFeirasCache
+    .filter(f => f.nome.toLowerCase().includes(termo))
+    .slice(0, 5);
+
+  console.log('Resultados:', resultados);
+
+  if (termo.length === 0 || resultados.length === 0) {
+    lista.style.display = "block";
+    return;
+  }
+
+  resultados.forEach(f => {
+    const li = document.createElement("li");
+    li.className = "list-group-item list-group-item-action";
+    li.textContent = f.nome;
+    li.onclick = () => {
+      input.value = f.nome;
+      lista.innerHTML = "";
+      lista.style.display = "block";
+    };
+    lista.appendChild(li);
+  });
+
+  lista.style.display = "block";
+}
+
+
+document.addEventListener('click', (e) => {
+  if (!document.getElementById("enderecoInput").contains(e.target)) {
+    document.getElementById("autocompleteLista").innerHTML = "";
+  }
+});
+  // Inicializa mapa
+  adicionarLocalizacaoAtual();
+  carregarTodasFeiras();
+</script>
+
 </body>
 </html>

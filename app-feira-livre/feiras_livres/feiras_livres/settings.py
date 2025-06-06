@@ -53,8 +53,8 @@ ROOT_URLCONF = 'feiras_livres.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'templates'],  # Verifique se este diretório está correto
+        'APP_DIRS': True,  # Permite que o Django busque templates dentro das pastas templates de cada app
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -64,6 +64,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'feiras_livres.wsgi.application'
 
