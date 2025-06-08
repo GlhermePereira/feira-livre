@@ -19,142 +19,136 @@
   <h5>Feiras encontradas:</h5>
   <ul id="listaFeiras" class="list-group"></ul>
 
- <script>
-  // Essas funções devem estar no escopo global
-    const token = localStorage.getItem("access");
-  if (!token) {
-    window.location.href = "/login/";
-  }
-  function adicionarMarcadorFeira(feira) {
-    L.marker([feira.latitude, feira.longitude])
-      .addTo(map)
-      .bindPopup(`<b>${feira.nome}</b><br>${feira.endereco}`);
-  }
-
-  function adicionarLocalizacaoAtual() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(pos => {
-        const { latitude, longitude } = pos.coords;
-const marcador = L.marker([latitude, longitude], {
-  icon: L.icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/512/447/447031.png', // ícone de localização/pin
-    iconSize: [30, 40],
-    iconAnchor: [15, 40],
-    popupAnchor: [0, -40],
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    shadowSize: [41, 41],
-    shadowAnchor: [12, 41]
-  })
-}).addTo(map).bindPopup('Você está aqui');
-
-
-
-        map.setView([latitude, longitude], 14);
-      }, erro => {
-        console.warn("⚠️ Localização não permitida.");
-      });
-    } else {
-      console.error("Geolocalização não suportada.");
-    }
-  }
-
-  async function carregarTodasFeiras() {
-    try {
-      const response = await fetch('/api/feiras/todas/');
-      const feiras = await response.json();
-      feiras.forEach(feira => adicionarMarcadorFeira(feira));
-    } catch (error) {
-      console.error("Erro ao carregar feiras:", error);
-    }
-  }
-
-  async function buscarFeiras() {
-    const endereco = document.getElementById("enderecoInput").value;
-    const lista = document.getElementById("listaFeiras");
-    lista.innerHTML = "";
-
-    try {
-      const response = await fetch(`/api/feiras/geolocalizacao/?endereco=${encodeURIComponent(endereco)}`);
-
-      if (!response.ok) {
-        const erro = await response.json();
-        lista.innerHTML = `<li class="list-group-item text-danger">Erro: ${erro.erro}</li>`;
-        return;
-      }
-
-      const feiras = await response.json();
-
-      map.eachLayer(layer => {
-        if (layer instanceof L.Marker) map.removeLayer(layer);
-      });
-
-      adicionarLocalizacaoAtual();
-
-      feiras.forEach(feira => {
-        adicionarMarcadorFeira(feira);
-        const item = document.createElement("li");
-        item.className = "list-group-item";
-        const link = document.createElement("a");
-        link.href = `/feiras/${feira.id}/`;
-        link.textContent = `${feira.nome} – ${feira.bairro}`;
-        item.appendChild(link);
-        lista.appendChild(item);
-      });
-    } catch (error) {
-      lista.innerHTML = `<li class="list-group-item text-danger">Erro ao buscar feiras. Tente novamente.</li>`;
-    }
-  }
-
-async function autocompleteFeiras() {
-  const termo = document.getElementById("enderecoInput").value;
-  if (!termo.trim()) return;
-
-  const response = await fetch(`${window.location.origin}/api/feiras/autocomplete/?q=${encodeURIComponent(termo)}`);
-  const dados = await response.json();
-
-  const lista = document.getElementById("autocompleteLista");
-  lista.innerHTML = "";
-
-  dados.forEach((feira) => {
-    const item = document.createElement("div");
-    item.classList.add("autocomplete-suggestion", "list-group-item");
-    item.textContent = `${feira.nome} - ${feira.endereco}, ${feira.bairro}`;
-    item.tabIndex = 0;
-
-    // 🔁 Ao clicar ou pressionar Enter, redireciona para os detalhes
-    item.addEventListener("click", () => {
-      window.location.replace = `/feiras/${feira.id}/`;
-    });
-
-    item.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        window.location.replace = `/feiras/${feira.id}/`;
-      }
-    });
-
-    lista.appendChild(item);
-  });
-}
-
-
-
-  document.addEventListener('click', (e) => {
-    if (!document.getElementById("enderecoInput").contains(e.target)) {
-      document.getElementById("autocompleteLista").innerHTML = "";
-    }
-  });
-
-  let map;
-
+<script>
   document.addEventListener('DOMContentLoaded', function () {
-    map = L.map('map').setView([-24.007, -46.402], 13);
+
+
+    let map = L.map('map').setView([-24.007, -46.402], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
+    function adicionarMarcadorFeira(feira) {
+      L.marker([feira.latitude, feira.longitude])
+        .addTo(map)
+        .bindPopup(`<b>${feira.nome}</b><br>${feira.endereco}`);
+    }
+
+    function adicionarLocalizacaoAtual() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const { latitude, longitude } = pos.coords;
+          const marcador = L.marker([latitude, longitude], {
+            icon: L.icon({
+              iconUrl: 'https://cdn-icons-png.flaticon.com/512/447/447031.png',
+              iconSize: [30, 40],
+              iconAnchor: [15, 40],
+              popupAnchor: [0, -40],
+              shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+              shadowSize: [41, 41],
+              shadowAnchor: [12, 41]
+            })
+          }).addTo(map).bindPopup('Você está aqui');
+
+          map.setView([latitude, longitude], 14);
+        }, erro => {
+          console.warn("⚠️ Localização não permitida.");
+        });
+      } else {
+        console.error("Geolocalização não suportada.");
+      }
+    }
+
+    async function carregarTodasFeiras() {
+      try {
+        const response = await fetch('/api/feiras/todas/');
+        const feiras = await response.json();
+        feiras.forEach(feira => adicionarMarcadorFeira(feira));
+      } catch (error) {
+        console.error("Erro ao carregar feiras:", error);
+      }
+    }
+
+    async function buscarFeiras() {
+      const endereco = document.getElementById("enderecoInput").value;
+      const lista = document.getElementById("listaFeiras");
+      lista.innerHTML = "";
+
+      try {
+        const response = await fetch(`/api/feiras/geolocalizacao/?endereco=${encodeURIComponent(endereco)}`);
+
+        if (!response.ok) {
+          const erro = await response.json();
+          lista.innerHTML = `<li class="list-group-item text-danger">Erro: ${erro.erro}</li>`;
+          return;
+        }
+
+        const feiras = await response.json();
+
+        map.eachLayer(layer => {
+          if (layer instanceof L.Marker) map.removeLayer(layer);
+        });
+
+        adicionarLocalizacaoAtual();
+
+        feiras.forEach(feira => {
+          adicionarMarcadorFeira(feira);
+          const item = document.createElement("li");
+          item.className = "list-group-item";
+          const link = document.createElement("a");
+          link.href = `/feiras/${feira.id}/`;
+          link.textContent = `${feira.nome} – ${feira.bairro}`;
+          item.appendChild(link);
+          lista.appendChild(item);
+        });
+      } catch (error) {
+        lista.innerHTML = `<li class="list-group-item text-danger">Erro ao buscar feiras. Tente novamente.</li>`;
+      }
+    }
+
+    async function autocompleteFeiras() {
+      const termo = document.getElementById("enderecoInput").value;
+      if (!termo.trim()) return;
+
+      const response = await fetch(`${window.location.origin}/api/feiras/autocomplete/?q=${encodeURIComponent(termo)}`);
+      const dados = await response.json();
+
+      const lista = document.getElementById("autocompleteLista");
+      lista.innerHTML = "";
+
+      dados.forEach((feira) => {
+        const item = document.createElement("div");
+        item.classList.add("autocomplete-suggestion", "list-group-item");
+        item.textContent = `${feira.nome} - ${feira.endereco}, ${feira.bairro}`;
+        item.tabIndex = 0;
+
+        item.addEventListener("click", () => {
+          window.location.href = `/feiras/${feira.id}/`;
+        });
+
+        item.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            window.location.href = `/feiras/${feira.id}/`;
+          }
+        });
+
+        lista.appendChild(item);
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById("enderecoInput").contains(e.target)) {
+        document.getElementById("autocompleteLista").innerHTML = "";
+      }
+    });
+
     adicionarLocalizacaoAtual();
     carregarTodasFeiras();
+
+    window.buscarFeiras = buscarFeiras;
+    window.autocompleteFeiras = autocompleteFeiras;
   });
 </script>
+
 
 {% endblock main %}
