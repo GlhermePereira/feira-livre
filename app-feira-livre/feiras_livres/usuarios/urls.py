@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import RegisterView, MeView, login_view, dashboard_view, cadastro_view
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+from .views import CustomTokenObtainPairView  # no topo do arquivo
 app_name = 'usuarios'
 
 urlpatterns = [
@@ -14,10 +14,9 @@ urlpatterns = [
     path('login/', login_view, name='login'),
 
     # Login via API JWT (separar em /api/login/ se quiser manter ambos)
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('me/', MeView.as_view(), name='me'),
-
+# de:
     path('dashboard/', dashboard_view, name='dashboard'),
 ]

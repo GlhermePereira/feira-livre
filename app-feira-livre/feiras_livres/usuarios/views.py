@@ -8,6 +8,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import UsuarioCreateForm
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
 
 Usuario = get_user_model()
 
@@ -58,4 +60,7 @@ def cadastro_view(request):
         form = UsuarioCreateForm()
 
     return render(request, 'usuarios/register.html', {'form': form})
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 

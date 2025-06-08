@@ -1,4 +1,3 @@
-# usuarios/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario
@@ -34,6 +33,14 @@ class UsuarioCreateForm(UserCreationForm):
         max_length=20
     )
 
+    class Meta(UserCreationForm.Meta):
+        model = Usuario
+        fields = [
+            'nome_completo', 'email', 'telefone',
+            'cep', 'rua', 'numero', 'bairro', 'cidade', 'estado',
+            'password1', 'password2'
+        ]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
@@ -41,18 +48,16 @@ class UsuarioCreateForm(UserCreationForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
+
+        # Divide nome completo em first_name e last_name
         nome = self.cleaned_data.get('nome_completo', '').strip()
         nomes = nome.split(' ', 1)
         user.first_name = nomes[0]
         user.last_name = nomes[1] if len(nomes) > 1 else ''
+
+        # Garante que o campo username (herdado de AbstractUser) seja único
+        user.username = user.email.split('@')[0]
+
         if commit:
             user.save()
         return user
-
-    class Meta:
-        model = Usuario
-        fields = [
-            'nome_completo', 'email', 'telefone',
-            'cep', 'rua', 'numero', 'bairro', 'cidade', 'estado',
-            'password1', 'password2'
-        ]

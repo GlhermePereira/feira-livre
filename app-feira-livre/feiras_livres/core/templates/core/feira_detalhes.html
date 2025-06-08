@@ -1,15 +1,63 @@
-<h1>{{ feira.nome }}</h1>
-<p><b>Endereço:</b> {{ feira.endereco }}</p>
-<p><b>Bairro:</b> {{ feira.bairro }}</p>
-<p><b>Cidade:</b> {{ feira.cidade }}</p>
-<p><b>Dias de funcionamento:</b> {{ feira.dias_funcionamento }}</p>
-<p><b>Horário:</b> {{ feira.horario_abertura }} às {{ feira.horario_fechamento }}</p>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes da Feira - {{ feira.nome }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    #map { height: 400px; margin-bottom: 1rem; }
+  </style>
+</head>
+<body class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2 class="text-center">{{ feira.nome }}</h2>
+      <p class="text-center"><strong>Feira de {{ feira.bairro }}, {{ feira.cidade }}</strong></p>
+    </div>
+  </div>
 
-<h2>Barracas</h2>
-<ul>
-  {% for barraca in barracas %}
-    <li>{{ barraca.nome }} - {{ barraca.descricao }}</li>
-  {% empty %}
-    <li>Sem barracas cadastradas.</li>
-  {% endfor %}
-</ul>
+  <div class="row">
+    <!-- Informações da feira -->
+    <div class="col-md-6">
+      <h5>Informações</h5>
+      <ul class="list-group">
+        <li class="list-group-item"><strong>Endereço:</strong> {{ feira.endereco }}</li>
+        <li class="list-group-item"><strong>Bairro:</strong> {{ feira.bairro }}</li>
+        <li class="list-group-item"><strong>Cidade:</strong> {{ feira.cidade }}</li>
+        <li class="list-group-item"><strong>Dia(s) de Funcionamento:</strong> {{ feira.dias_funcionamento }}</li>
+        <li class="list-group-item"><strong>Horário de Abertura:</strong> {{ feira.horario_abertura }}</li>
+        <li class="list-group-item"><strong>Horário de Fechamento:</strong> {{ feira.horario_fechamento }}</li>
+      </ul>
+    </div>
+
+    <!-- Mapa -->
+    <div class="col-md-6">
+      <h5>Localização</h5>
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <!-- Voltar para a lista de feiras -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <a href="/" class="btn btn-secondary">Voltar para a lista de feiras</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Inicializa o mapa com a latitude e longitude da feira
+    let map = L.map('map').setView([{{ feira.latitude }}, {{ feira.longitude }}], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    L.marker([{{ feira.latitude }}, {{ feira.longitude }}]).addTo(map)
+      .bindPopup('<b>{{ feira.nome }}</b><br>{{ feira.endereco }}');
+  </script>
+</body>
+</html>

@@ -2,7 +2,7 @@ from django.urls import path
 from core import views
 
 urlpatterns = [
-    path('feiras/', views.feiras_view, name='feiras'),
+    #path('feiras/', views.feiras_view, name='feiras'),
     path('feiras/<int:feira_id>/', views.feira_detalhes_view, name='feira_detalhes'),
     path('api/feiras/todas/', views.listar_todas_feiras, name='todas_feiras'),
 
