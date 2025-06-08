@@ -29,30 +29,49 @@
 
   <!-- Header (Menu de Navegação) -->
   {% block header %}
-    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'usuarios:dashboard' %}">Feiras Livres</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link active" href="{% url 'usuarios:dashboard' %}">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#feiras">Feiras</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#sobre">Sobre</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#contato">Contato</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <div class="container-fluid">
+
+    <!-- Marca -->
+    <a class="navbar-brand" href="{% url 'usuarios:dashboard' %}">Feiras Livres</a>
+
+    <!-- Botão hamburguer -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarConteudo"
+      aria-controls="navbarConteudo" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Conteúdo colapsável -->
+    <div class="collapse navbar-collapse justify-content-between" id="navbarConteudo">
+
+      <!-- Menu à esquerda -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'usuarios:dashboard' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#feiras">Feiras</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#sobre">Sobre</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#contato">Contato</a>
+        </li>
+      </ul>
+
+      <!-- Botão sair à direita -->
+      {% if request.user.is_authenticated %}
+      <form method="post" action="{% url 'usuarios:logout' %}" class="d-flex">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger">Sair</button>
+      </form>
+      {% endif %}
+
+    </div>
+  </div>
+</nav>
+
   {% endblock %}
 
   <!-- Conteúdo Dinâmico da Página -->

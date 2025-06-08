@@ -9,6 +9,7 @@ from .models import Feira
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import logging
+from django.contrib.auth import logout
 from django.db.models import Q
 logger = logging.getLogger(__name__)
 
@@ -136,6 +137,9 @@ def buscar_feiras(request):
     except Exception as e:
         logger.error(f"Erro durante a busca: {e}")
         return JsonResponse({'erro': 'Erro interno do servidor'}, status=500)
+    
+
+
 
 
 

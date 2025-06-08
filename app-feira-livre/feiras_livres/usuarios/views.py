@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import UsuarioCreateForm
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer
+from django.contrib.auth import logout
 
 Usuario = get_user_model()
 
@@ -64,3 +65,7 @@ def cadastro_view(request):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
+
+def logout_view(request):
+    logout(request)
+    return redirect('usuarios:login')  # Redireciona para a página de login após logout
