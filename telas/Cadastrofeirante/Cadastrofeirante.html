@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastro - Feira Fácil</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="cadastrofeirante.css" rel="stylesheet">
+  <script src="Cadastro.js"></script>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="text-center mb-4">
+      <button class="btn btn-outline-primary me-2" onclick="mostrarFormulario('feirante')">Cadastro Feirante</button>
+      <button class="btn btn-outline-primary" onclick="mostrarFormulario('usuario')">Cadastro Usuário</button>
+    </div>
+
+    <!-- Formulário Feirante -->
+    <form id="formFeirante" style="display: none;" onsubmit="return validarFeirante()">
+      <h4>Cadastro de Feirante</h4>
+      <div class="mb-3">
+        <label for="nomeFeirante" class="form-label">Nome completo</label>
+        <input type="text" class="form-control" id="nomeFeirante" required>
+      </div>
+      <div class="mb-3">
+        <label for="emailFeirante" class="form-label">E-mail</label>
+        <input type="email" class="form-control" id="emailFeirante" required>
+      </div>
+      <div class="mb-3">
+        <label for="enderecoFeirante" class="form-label">Endereço</label>
+        <input type="text" class="form-control" id="enderecoFeirante" required>
+      </div>
+      <div class="mb-3">
+        <label for="senhaFeirante" class="form-label">Senha</label>
+        <input type="password" class="form-control" id="senhaFeirante" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Tipo de Cadastro</label><br>
+        <input type="radio" name="tipoCadastro" value="CNPJ" required> CNPJ
+        <input type="radio" name="tipoCadastro" value="MEI" required> MEI
+        <input type="radio" name="tipoCadastro" value="PJ" required> PJ
+      </div>
+      <div class="mb-3">
+        <label for="numeroTipo" class="form-label">Número do CNPJ/MEI/PJ</label>
+        <input type="text" class="form-control" id="numeroTipo" required maxlength="18">
+      </div>
+      <div class="mb-3">
+        <label for="licenca" class="form-label">Foto da Licença</label>
+        <input type="file" class="form-control" id="licenca" accept="image/*" required>
+      </div>
+      <button type="submit" class="btn btn-success">Cadastrar</button>
+    </form>
+
+    <!-- Formulário Usuário -->
+    <form id="formUsuario" style="display: none;" onsubmit="return validarUsuario()">
+      <h4>Cadastro de Usuário</h4>
+      <div class="mb-3">
+        <label for="nomeUsuario" class="form-label">Nome completo</label>
+        <input type="text" class="form-control" id="nomeUsuario" required>
+      </div>
+      <div class="mb-3">
+        <label for="emailUsuario" class="form-label">E-mail</label>
+        <input type="email" class="form-control" id="emailUsuario" required>
+      </div>
+      <div class="mb-3">
+        <label for="dataNascimento" class="form-label">Data de nascimento</label>
+        <input type="date" class="form-control" id="dataNascimento" required>
+      </div>
+      <div class="mb-3">
+        <label for="senhaUsuario" class="form-label">Senha</label>
+        <input type="password" class="form-control" id="senhaUsuario" required>
+      </div>
+      <button type="submit" class="btn btn-success">Cadastrar</button>
+    </form>
+  </div>
+</body>
+</html>

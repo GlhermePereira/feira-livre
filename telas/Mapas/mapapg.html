@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Localizar Endereço</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+          <link href="estilomapa.css" rel="stylesheet">
+
+    <style>
+        #map { height: 500px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Buscar Endereço em Praia Grande</h1>
+    <form method="get">
+        <input type="text" name="endereco" placeholder="Digite um endereço..." required>
+        <button type="submit">Buscar</button>
+    </form>
+
+
+        <p><strong>Endereço encontrado:</strong> {{ coordenadas.endereco }}</p>
+        <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        const lat = parseFloat("{{ coordenadas.lat }}");
+        const lon = parseFloat("{{ coordenadas.lon }}");
+        const endereco = "{{ coordenadas.endereco|escapejs }}";
+
+        const map = L.map('map').setView([lat, lon], 16);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        L.marker([lat, lon])
+            .addTo(map)
+            .bindPopup(endereco)
+            .openPopup();
+    </script>
+</body>
+</html>
